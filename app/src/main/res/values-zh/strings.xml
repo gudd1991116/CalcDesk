@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CalcDesk</string>
+    <string name="app_tagline">免费离线计算器与换算工具</string>
+    <string name="search_tools">搜索工具</string>
+    <string name="categories">分类</string>
+    <string name="all_tools">全部工具</string>
+    <string name="about">关于</string>
+    <string name="privacy">隐私政策</string>
+    <string name="contact">联系</string>
+    <string name="back">返回</string>
+    <string name="calculate">计算</string>
+    <string name="convert">换算</string>
+    <string name="copy">复制</string>
+    <string name="copied">已复制</string>
+    <string name="clear">清除</string>
+    <string name="swap">交换</string>
+    <string name="result">结果</string>
+    <string name="disclaimer_health">仅供参考，不能替代医疗建议。</string>
+    <string name="disclaimer_finance">仅供参考，不构成理财建议。</string>
+    <string name="offline_badge">100% 离线 · 无需账号</string>
+    <string name="privacy_summary">CalcDesk 在本地完成计算。我们不收集个人数据，本应用无需联网。</string>
+    <string name="privacy_body">CalcDesk 是免费工具集，涵盖日期时间、单位换算、数字计算、开发辅助与生活实用计算器。\n\n• 全部计算在设备本地完成。\n• 无需账号，本版本无追踪 SDK、无广告。\n• 语言偏好仅保存在本机。\n• 联系邮箱：gudongdong8@gmail.com\n\n网页版隐私政策：https://calcdesk.app/privacy</string>
+    <string name="about_body">CalcDesk 将 calcdesk.app 工具带到 Android — 快速、私密、离线可用。\n\n版本 %1$s\n开发者邮箱：gudongdong8@gmail.com</string>
+    <string name="open_website">打开网站</string>
+    <string name="send_email">发送邮件</string>
+    <string name="cat_datetime">时间与日期</string>
+    <string name="cat_units">单位换算</string>
+    <string name="cat_math">数字计算</string>
+    <string name="cat_dev">开发工具</string>
+    <string name="cat_life">生活实用</string>
+    <string name="help">说明</string>
+    <string name="tool_help">%1$s 说明</string>
+    <string name="got_it">知道了</string>
+    <string name="help_more_details">详情</string>
+    <string name="help_more_details_hint">点击查看网页版页面底部的完整说明。</string>
+    <string name="help_details_title">%1$s — 详情</string>
+</resources>

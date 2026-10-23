@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="calcdesk_bg">#FFF0F7F5</color>
+    <color name="calcdesk_teal">#FF0D9488</color>
+    <color name="calcdesk_teal_dark">#FF0F766E</color>
+    <color name="ic_launcher_background">#FF0D9488</color>
+</resources>

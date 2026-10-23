@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CalcDesk</string>
+    <string name="app_tagline">Free offline calculators &amp; converters</string>
+    <string name="search_tools">Search tools</string>
+    <string name="categories">Categories</string>
+    <string name="all_tools">All tools</string>
+    <string name="about">About</string>
+    <string name="privacy">Privacy</string>
+    <string name="contact">Contact</string>
+    <string name="back">Back</string>
+    <string name="calculate">Calculate</string>
+    <string name="convert">Convert</string>
+    <string name="copy">Copy</string>
+    <string name="copied">Copied</string>
+    <string name="clear">Clear</string>
+    <string name="swap">Swap</string>
+    <string name="result">Result</string>
+    <string name="disclaimer_health">For reference only — not medical advice.</string>
+    <string name="disclaimer_finance">For reference only — not financial advice.</string>
+    <string name="offline_badge">100% offline · no account</string>
+    <string name="privacy_summary">CalcDesk calculates on your device. We do not collect personal data, and the app does not require network access.</string>
+    <string name="privacy_body">CalcDesk is a free toolkit for dates, unit conversion, math, developer helpers, and everyday life calculators.\n\n• All calculations run locally on your device.\n• No account, no tracking SDK, no ads in this version.\n• Optional language preference may be stored on-device only.\n• Contact: gudongdong8@gmail.com\n\nWeb privacy policy: https://calcdesk.app/privacy</string>
+    <string name="about_body">CalcDesk brings the calcdesk.app toolkit to Android — fast, private, and offline.\n\nVersion %1$s\nDeveloper contact: gudongdong8@gmail.com</string>
+    <string name="open_website">Open website</string>
+    <string name="send_email">Send email</string>
+    <string name="cat_datetime">Date &amp; time</string>
+    <string name="cat_units">Units</string>
+    <string name="cat_math">Math</string>
+    <string name="cat_dev">Developer</string>
+    <string name="cat_life">Life</string>
+    <string name="help">Help</string>
+    <string name="tool_help">%1$s Help</string>
+    <string name="got_it">Got it</string>
+    <string name="help_more_details">More details</string>
+    <string name="help_more_details_hint">Open the full guide from the website page footer.</string>
+    <string name="help_details_title">%1$s — Details</string>
+</resources>
