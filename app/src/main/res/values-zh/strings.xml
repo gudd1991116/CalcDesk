@@ -35,4 +35,10 @@
     <string name="help_more_details">详情</string>
     <string name="help_more_details_hint">点击查看网页版页面底部的完整说明。</string>
     <string name="help_details_title">%1$s — 详情</string>
+    <string name="countdown_history">历史记录</string>
+    <string name="countdown_notification_view">查看</string>
+    <string name="alerts_title">提醒</string>
+    <string name="alerts_subtitle">对应桌面图标红点：今天或明天到期的倒计时。打开本页会清除角标数字。</string>
+    <string name="alerts_empty">当前没有提醒。</string>
+    <string name="alerts_clear_badge">清除角标</string>
 </resources>

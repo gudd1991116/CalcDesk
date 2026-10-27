@@ -30,13 +30,15 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.qiyuan.calcdesk.R
 
@@ -50,7 +52,7 @@ fun InputFieldTextStyle(): TextStyle =
 fun CalcDeskScaffold(
     title: String,
     onBack: (() -> Unit)? = null,
-    actions: @Composable () -> Unit = {},
+    actions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -165,11 +167,15 @@ fun CalcTextField(
     )
 }
 
+/**
+ * @param mainIsResult when false, [main] is treated as a hint/tag (muted), not a highlighted result.
+ */
 @Composable
 fun ResultCard(
     main: String,
     lines: List<String> = emptyList(),
     modifier: Modifier = Modifier,
+    mainIsResult: Boolean = true,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -183,12 +189,22 @@ fun ResultCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text(
-                text = main,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            if (main.isNotEmpty()) {
+                Text(
+                    text = main,
+                    style = if (mainIsResult) {
+                        MaterialTheme.typography.headlineSmall
+                    } else {
+                        MaterialTheme.typography.titleMedium
+                    },
+                    fontWeight = FontWeight.Bold,
+                    color = if (mainIsResult) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
+            }
             lines.forEach { line ->
                 ResultLine(line = line)
             }
@@ -196,54 +212,81 @@ fun ResultCard(
     }
 }
 
-/** Renders "标签：值" / "Label: value" with bold theme-colored value after the colon. */
+/**
+ * Renders "标签：值" / "Label: value" with bold theme-colored value after a *label* colon.
+ * Uses one Text + AnnotatedString so label/value share the same baseline (no vertical jump).
+ * Does not split on time colons inside `HH:mm:ss` / `UTC+08:00`.
+ */
 @Composable
 fun ResultLine(line: String, modifier: Modifier = Modifier) {
     val split = splitResultLabelValue(line)
+    val body = MaterialTheme.typography.bodyLarge
     if (split == null) {
         Text(
             text = line,
             modifier = modifier.fillMaxWidth(),
-            style = MaterialTheme.typography.bodyLarge,
+            style = body,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
         )
     } else {
         val (label, colon, value) = split
-        Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Text(
-                text = label + colon,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f),
-            )
-        }
+        val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+        val valueColor = MaterialTheme.colorScheme.primary
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(color = labelColor, fontWeight = FontWeight.Bold)) {
+                    append(label)
+                    append(colon)
+                }
+                withStyle(SpanStyle(color = valueColor, fontWeight = FontWeight.Bold)) {
+                    append(value)
+                }
+            },
+            modifier = modifier.fillMaxWidth(),
+            style = body,
+        )
     }
 }
 
+/**
+ * Only treat as "label / value" when the colon is a real separator:
+ * - Fullwidth `：` (Chinese labels), or
+ * - ASCII `:` followed by whitespace (e.g. `ISO-8601: 2026…`, `New York: 2026…`).
+ * Never split on the colon inside `07:51:42` or `UTC+08:00`.
+ */
 private fun splitResultLabelValue(line: String): Triple<String, String, String>? {
     val idxCn = line.indexOf('：')
-    val idxEn = line.indexOf(':')
+    val idxEn = indexOfAsciiLabelColon(line)
     val idx = when {
         idxCn >= 0 && (idxEn < 0 || idxCn <= idxEn) -> idxCn
         idxEn >= 0 -> idxEn
         else -> return null
     }
-    // Avoid splitting ISO times like "12:30:00" when there is no label — require some label text.
     if (idx == 0) return null
     val label = line.substring(0, idx)
-    // If label looks like pure digits/time, treat as plain value line.
-    if (label.all { it.isDigit() || it == '-' || it == ' ' || it == 'T' }) return null
+    // Pure time / ISO fragment before colon → keep as one value line.
+    if (label.all { it.isDigit() || it == '-' || it == ' ' || it == 'T' || it == '+' || it == 'Z' }) {
+        return null
+    }
     val colon = line.substring(idx, idx + 1)
     val value = line.substring(idx + 1).trimStart()
+    if (value.isEmpty()) return null
     return Triple(label, colon, value)
+}
+
+/** First ASCII `:` that looks like a label separator (`Label: value`), not `HH:mm`. */
+private fun indexOfAsciiLabelColon(line: String): Int {
+    var i = 0
+    while (i < line.length) {
+        if (line[i] == ':') {
+            val next = line.getOrNull(i + 1)
+            // Require whitespace after colon so times like 07:51 stay intact.
+            if (next == null || next.isWhitespace()) return i
+        }
+        i++
+    }
+    return -1
 }
 
 @Composable

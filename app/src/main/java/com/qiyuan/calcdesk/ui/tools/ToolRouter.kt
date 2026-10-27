@@ -3,19 +3,20 @@ package com.qiyuan.calcdesk.ui.tools
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.res.stringResource
-import com.qiyuan.calcdesk.R
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.qiyuan.calcdesk.R
 import com.qiyuan.calcdesk.data.ToolCatalog
 import com.qiyuan.calcdesk.data.ToolCategoryId
 import com.qiyuan.calcdesk.data.displayName
@@ -29,6 +30,7 @@ fun ToolScreen(
     toolId: String,
     onBack: () -> Unit,
     onOpenTimestampSnippets: () -> Unit = {},
+    onOpenCountdownHistory: () -> Unit = {},
 ) {
     val tool = remember(toolId) { ToolCatalog.find(toolId) }
     val zh = remember { Locale.getDefault().language.startsWith("zh") }
@@ -63,6 +65,14 @@ fun ToolScreen(
                     Icon(
                         Icons.Outlined.Info,
                         contentDescription = stringResource(R.string.help),
+                    )
+                }
+            }
+            if (toolId == "countdown") {
+                IconButton(onClick = onOpenCountdownHistory) {
+                    Icon(
+                        Icons.Outlined.History,
+                        contentDescription = stringResource(R.string.countdown_history),
                     )
                 }
             }

@@ -7,6 +7,11 @@ object Routes {
     const val PRIVACY = "privacy"
     const val CONTACT = "contact"
     const val TIMESTAMP_SNIPPETS = "timestamp-snippets"
+    const val COUNTDOWN_HISTORY = "countdown-history"
+    const val ALERTS = "alerts?itemId={itemId}"
 
     fun tool(id: String): String = "tool/$id"
+
+    fun alerts(itemId: Long? = null): String =
+        if (itemId == null) "alerts?itemId=" else "alerts?itemId=$itemId"
 }

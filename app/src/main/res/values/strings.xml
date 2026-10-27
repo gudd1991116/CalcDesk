@@ -35,4 +35,10 @@
     <string name="help_more_details">More details</string>
     <string name="help_more_details_hint">Open the full guide from the website page footer.</string>
     <string name="help_details_title">%1$s — Details</string>
+    <string name="countdown_history">History</string>
+    <string name="countdown_notification_view">View</string>
+    <string name="alerts_title">Reminders</string>
+    <string name="alerts_subtitle">These match the badge on the app icon — countdowns due today or tomorrow. Opening this page clears the badge.</string>
+    <string name="alerts_empty">No reminders right now.</string>
+    <string name="alerts_clear_badge">Clear badge</string>
 </resources>

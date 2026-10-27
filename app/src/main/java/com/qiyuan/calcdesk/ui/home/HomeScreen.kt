@@ -20,7 +20,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -38,12 +41,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,9 +56,12 @@ import com.qiyuan.calcdesk.R
 import com.qiyuan.calcdesk.data.ToolCatalog
 import com.qiyuan.calcdesk.data.ToolCategoryId
 import com.qiyuan.calcdesk.data.ToolItem
+import com.qiyuan.calcdesk.data.db.AppDatabase
 import com.qiyuan.calcdesk.data.displayDesc
 import com.qiyuan.calcdesk.data.displayName
 import com.qiyuan.calcdesk.ui.components.InputFieldTextStyle
+import com.qiyuan.calcdesk.util.CountdownNotifier
+import java.time.LocalDate
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +71,9 @@ fun HomeScreen(
     onAbout: () -> Unit,
     onPrivacy: () -> Unit,
     onContact: () -> Unit,
+    onOpenAlerts: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     val zh = remember { Locale.getDefault().language.startsWith("zh") }
     var query by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<ToolCategoryId?>(null) }
@@ -72,6 +82,14 @@ fun HomeScreen(
         listOf<ToolCategoryId?>(null) + ToolCatalog.categories.map { it.id }
     }
     val selectedTab = categoryTabs.indexOf(selectedCategory).coerceAtLeast(0)
+
+    val countdownItems by remember {
+        AppDatabase.get(context).countdownDao().observeAll()
+    }.collectAsState(initial = emptyList())
+    val badgeRevision by CountdownNotifier.badgeRevision.collectAsState()
+    val alertCount = remember(countdownItems, badgeRevision) {
+        CountdownNotifier.unreadDueAlerts(context, countdownItems, LocalDate.now()).size
+    }
 
     val filtered = remember(query, selectedCategory) {
         ToolCatalog.allTools.filter { tool ->
@@ -91,10 +109,28 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
+                    IconButton(onClick = onOpenAlerts) {
+                        BadgedBox(
+                            badge = {
+                                if (alertCount > 0) {
+                                    Badge { Text(if (alertCount > 99) "99+" else alertCount.toString()) }
+                                }
+                            },
+                        ) {
+                            Icon(
+                                Icons.Outlined.Notifications,
+                                contentDescription = stringResource(R.string.alerts_title),
+                            )
+                        }
+                    }
                     IconButton(onClick = { menuOpen = true }) {
                         Icon(Icons.Outlined.MoreVert, contentDescription = null)
                     }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.alerts_title)) },
+                            onClick = { menuOpen = false; onOpenAlerts() },
+                        )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.about)) },
                             onClick = { menuOpen = false; onAbout() },

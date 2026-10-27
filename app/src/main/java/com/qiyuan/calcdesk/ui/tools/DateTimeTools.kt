@@ -2,22 +2,28 @@ package com.qiyuan.calcdesk.ui.tools
 
 import android.icu.util.Calendar as IcuCalendar
 import android.icu.util.ChineseCalendar
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.ContentPaste
+import androidx.compose.material.icons.outlined.SwapVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,12 +41,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.qiyuan.calcdesk.R
 import com.qiyuan.calcdesk.data.TimeIntervalHelp
 import com.qiyuan.calcdesk.ui.components.CalcTextField
@@ -689,21 +705,30 @@ private fun TimeIntervalHelpSection() {
 
 // ───────────────────────────── 5. Age (+ zodiac / lunar) ─────────────────────────────
 
-private data class WesternSign(val zh: String, val en: String, val from: Int, val to: Int, val range: String)
+private data class WesternSign(
+    val id: String,
+    val zh: String,
+    val en: String,
+    val from: Int,
+    val to: Int,
+    val range: String,
+) {
+    fun label(): String = if (isZh()) zh else en
+}
 
 private val WESTERN_SIGNS = listOf(
-    WesternSign("摩羯座", "Capricorn", 1222, 119, "12.22 - 01.19"),
-    WesternSign("水瓶座", "Aquarius", 120, 218, "01.20 - 02.18"),
-    WesternSign("双鱼座", "Pisces", 219, 320, "02.19 - 03.20"),
-    WesternSign("白羊座", "Aries", 321, 419, "03.21 - 04.19"),
-    WesternSign("金牛座", "Taurus", 420, 520, "04.20 - 05.20"),
-    WesternSign("双子座", "Gemini", 521, 621, "05.21 - 06.21"),
-    WesternSign("巨蟹座", "Cancer", 622, 722, "06.22 - 07.22"),
-    WesternSign("狮子座", "Leo", 723, 822, "07.23 - 08.22"),
-    WesternSign("处女座", "Virgo", 823, 922, "08.23 - 09.22"),
-    WesternSign("天秤座", "Libra", 923, 1023, "09.23 - 10.23"),
-    WesternSign("天蝎座", "Scorpio", 1024, 1122, "10.24 - 11.22"),
-    WesternSign("射手座", "Sagittarius", 1123, 1221, "11.23 - 12.21"),
+    WesternSign("capricorn", "摩羯座", "Capricorn", 1222, 119, "12.22 - 01.19"),
+    WesternSign("aquarius", "水瓶座", "Aquarius", 120, 218, "01.20 - 02.18"),
+    WesternSign("pisces", "双鱼座", "Pisces", 219, 320, "02.19 - 03.20"),
+    WesternSign("aries", "白羊座", "Aries", 321, 419, "03.21 - 04.19"),
+    WesternSign("taurus", "金牛座", "Taurus", 420, 520, "04.20 - 05.20"),
+    WesternSign("gemini", "双子座", "Gemini", 521, 621, "05.21 - 06.21"),
+    WesternSign("cancer", "巨蟹座", "Cancer", 622, 722, "06.22 - 07.22"),
+    WesternSign("leo", "狮子座", "Leo", 723, 822, "07.23 - 08.22"),
+    WesternSign("virgo", "处女座", "Virgo", 823, 922, "08.23 - 09.22"),
+    WesternSign("libra", "天秤座", "Libra", 923, 1023, "09.23 - 10.23"),
+    WesternSign("scorpio", "天蝎座", "Scorpio", 1024, 1122, "10.24 - 11.22"),
+    WesternSign("sagittarius", "射手座", "Sagittarius", 1123, 1221, "11.23 - 12.21"),
 )
 
 private fun westernSign(month: Int, day: Int): WesternSign {
@@ -713,10 +738,34 @@ private fun westernSign(month: Int, day: Int): WesternSign {
     } ?: WESTERN_SIGNS[0]
 }
 
+private fun westernSignDrawable(id: String): Int = when (id) {
+    "aquarius" -> R.drawable.aquarius
+    "aries" -> R.drawable.aries
+    "cancer" -> R.drawable.cancer
+    "capricorn" -> R.drawable.capricorn
+    "gemini" -> R.drawable.gemini
+    "leo" -> R.drawable.leo
+    "libra" -> R.drawable.libra
+    "pisces" -> R.drawable.pisces
+    "sagittarius" -> R.drawable.sagittarius
+    "scorpio" -> R.drawable.scorpio
+    "taurus" -> R.drawable.taurus
+    "virgo" -> R.drawable.virgo
+    else -> R.drawable.capricorn
+}
+
 private const val STEMS = "甲乙丙丁戊己庚辛壬癸"
 private const val BRANCHES = "子丑寅卯辰巳午未申酉戌亥"
 private val ANIMALS_ZH = listOf("鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪")
 private val ANIMALS_EN = listOf("Rat", "Ox", "Tiger", "Rabbit", "Dragon", "Snake", "Horse", "Goat", "Monkey", "Rooster", "Dog", "Pig")
+/** 1900 = 鼠；与网页 Lunar.zodiacFromLunarYear 一致。 */
+private val SHENGXIAO_DRAWABLES = intArrayOf(
+    R.drawable.rat, R.drawable.ox, R.drawable.tiger, R.drawable.rabbit,
+    R.drawable.dragon, R.drawable.snake, R.drawable.horse, R.drawable.goat,
+    R.drawable.monkey, R.drawable.rooster, R.drawable.dog, R.drawable.pig,
+)
+/** 对照表示例公历年（鼠…猪），与网页一致。 */
+private val SHENGXIAO_SAMPLE_BASE = listOf(1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007)
 
 /** index0 = 0 for 甲子 (rat) … 59 for 癸亥. */
 private fun ganzhiOf(index0: Int): String {
@@ -724,10 +773,17 @@ private fun ganzhiOf(index0: Int): String {
     return "" + STEMS[i % 10] + BRANCHES[i % 12]
 }
 
+private fun animalIndex(index0: Int): Int = Math.floorMod(index0, 12)
+
 private fun animalName(index0: Int): String {
-    val i = Math.floorMod(index0, 12)
+    val i = animalIndex(index0)
     return if (isZh()) ANIMALS_ZH[i] else ANIMALS_EN[i]
 }
+
+/** 按农历/公历年份查生肖（1900=鼠），与网页年查询一致。 */
+private fun animalIndexFromYear(year: Int): Int = Math.floorMod(year - 1900, 12)
+
+private fun ganzhiFromYear(year: Int): String = ganzhiOf(year - 4)
 
 private data class LunarInfo(val cycleYear: Int, val month: Int, val day: Int, val leap: Boolean)
 
@@ -772,7 +828,13 @@ private fun nextLunarBirthday(cal: ChineseCalendar, birth: LunarInfo, from: Loca
     return null
 }
 
-private data class AgeResult(val main: String, val lines: List<String>)
+private data class AgeResult(
+    val main: String,
+    val lines: List<String>,
+    val sign: WesternSign? = null,
+    val animalIdx: Int? = null,
+    val animalGanzhi: String? = null,
+)
 
 private fun buildAge(birth: LocalDate, today: LocalDate, zone: ZoneId): AgeResult {
     if (birth.isAfter(today)) {
@@ -789,11 +851,13 @@ private fun buildAge(birth: LocalDate, today: LocalDate, zone: ZoneId): AgeResul
     val turning = next.year - birth.year
 
     val sign = westernSign(birth.monthValue, birth.dayOfMonth)
-    val signName = (if (isZh()) sign.zh else sign.en) + " (${sign.range})"
+    val signName = sign.label() + " (${sign.range})"
 
     val cal = ChineseCalendar()
     val lunar = lunarOf(cal, birth, zone)
     val lines = mutableListOf<String>()
+    var animalIdx: Int? = null
+    var animalGanzhi: String? = null
 
     lines += tr("出生日期：", "Born: ") + "$birth · ${weekdayName(birth)}"
     lines += tr("总天数：", "Total days: ") + fmtInt(totalDays)
@@ -811,8 +875,10 @@ private fun buildAge(birth: LocalDate, today: LocalDate, zone: ZoneId): AgeResul
     lines += tr("星座：", "Zodiac sign: ") + signName
 
     if (lunar != null) {
-        val animal = animalName(lunar.cycleYear - 1)
-        lines += tr("生肖：", "Chinese zodiac: ") + animal + " · " + ganzhiOf(lunar.cycleYear - 1) + tr("年", " year")
+        animalIdx = animalIndex(lunar.cycleYear - 1)
+        animalGanzhi = ganzhiOf(lunar.cycleYear - 1)
+        lines += tr("生肖：", "Chinese zodiac: ") +
+            animalName(lunar.cycleYear - 1) + " · " + animalGanzhi + tr("年", " year")
         lines += tr("农历生日：", "Lunar birthday: ") + lunarText(lunar)
         val todayLunar = lunarOf(cal, today, zone)
         if (todayLunar != null) {
@@ -828,8 +894,10 @@ private fun buildAge(birth: LocalDate, today: LocalDate, zone: ZoneId): AgeResul
     } else {
         // Fallback: Gregorian-year based zodiac (approximate, ignores Lunar New Year boundary).
         val idx = birth.year - 4
+        animalIdx = animalIndex(idx)
+        animalGanzhi = ganzhiOf(idx)
         lines += tr("生肖（按公历年份）：", "Chinese zodiac (by calendar year): ") +
-            animalName(idx) + " · " + ganzhiOf(idx) + tr("年", " year")
+            animalName(idx) + " · " + animalGanzhi + tr("年", " year")
     }
 
     val main = if (isZh()) {
@@ -837,13 +905,95 @@ private fun buildAge(birth: LocalDate, today: LocalDate, zone: ZoneId): AgeResul
     } else {
         "${p.years} y ${p.months} m ${p.days} d"
     }
-    return AgeResult(main, lines)
+    return AgeResult(main, lines, sign = sign, animalIdx = animalIdx, animalGanzhi = animalGanzhi)
+}
+
+@Composable
+private fun AgeIconBadge(drawableRes: Int, label: String, subtitle: String, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Image(
+                painter = painterResource(drawableRes),
+                contentDescription = label,
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                if (subtitle.isNotBlank()) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AgeRefRow(drawableRes: Int, name: String, detail: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Image(
+            painter = painterResource(drawableRes),
+            contentDescription = name,
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop,
+        )
+        Text(
+            text = name,
+            modifier = Modifier.weight(0.35f),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = detail,
+            modifier = Modifier.weight(0.65f),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }
 
 @Composable fun AgeTool() {
     var birth by remember { mutableStateOf("1998-06-15") }
     val zone = remember { ZoneId.systemDefault() }
     val today = remember { LocalDate.now() }
+
+    var queryYear by remember { mutableStateOf(today.year.toString()) }
+    var queryMonth by remember {
+        mutableStateOf(parseDate(birth)?.monthValue?.toString() ?: "6")
+    }
+    var queryDay by remember {
+        mutableStateOf(parseDate(birth)?.dayOfMonth?.toString() ?: "15")
+    }
 
     DateFieldWithPicker(birth, { birth = it }, label = tr("出生日期 (yyyy-MM-dd)", "Birth date (yyyy-MM-dd)"))
     val result = remember(birth) {
@@ -853,6 +1003,136 @@ private fun buildAge(birth: LocalDate, today: LocalDate, zone: ZoneId): AgeResul
         ResultCard(main = tr("请输入有效日期", "Enter a valid date"))
     } else {
         ResultCard(main = result.main, lines = result.lines)
+
+        if (result.animalIdx != null || result.sign != null) {
+            SectionLabel(tr("生肖与星座", "Chinese zodiac & Western sign"))
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                result.animalIdx?.let { idx ->
+                    AgeIconBadge(
+                        drawableRes = SHENGXIAO_DRAWABLES[idx],
+                        label = (if (isZh()) ANIMALS_ZH[idx] else ANIMALS_EN[idx]) +
+                            (result.animalGanzhi?.let { " · $it" } ?: ""),
+                        subtitle = tr("出生年生肖（按农历年）", "Birth-year animal (lunar year)"),
+                    )
+                }
+                result.sign?.let { sign ->
+                    AgeIconBadge(
+                        drawableRes = westernSignDrawable(sign.id),
+                        label = sign.label(),
+                        subtitle = sign.range,
+                    )
+                }
+            }
+        }
+    }
+
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+    SectionLabel(tr("查生肖（任意年份）", "Look up Chinese zodiac by year"))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        NumberField(
+            value = queryYear,
+            onValueChange = { queryYear = it.filter { c -> c.isDigit() }.take(4) },
+            label = tr("年份", "Year"),
+            modifier = Modifier.weight(1f),
+        )
+    }
+    val yearNum = queryYear.toIntOrNull()
+    if (yearNum != null && yearNum in 1..9999) {
+        val idx = animalIndexFromYear(yearNum)
+        val gz = ganzhiFromYear(yearNum)
+        AgeIconBadge(
+            drawableRes = SHENGXIAO_DRAWABLES[idx],
+            label = if (isZh()) ANIMALS_ZH[idx] else ANIMALS_EN[idx],
+            subtitle = tr(
+                "$yearNum 年 · $gz 年",
+                "$yearNum · $gz year",
+            ),
+        )
+    } else {
+        Text(
+            text = tr("请输入有效年份，例如 1998", "Enter a valid year, e.g. 1998"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+    SectionLabel(tr("查星座（月日）", "Look up Western zodiac by month/day"))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        NumberField(
+            value = queryMonth,
+            onValueChange = { queryMonth = it.filter { c -> c.isDigit() }.take(2) },
+            label = tr("月", "Month"),
+            modifier = Modifier.weight(1f),
+        )
+        NumberField(
+            value = queryDay,
+            onValueChange = { queryDay = it.filter { c -> c.isDigit() }.take(2) },
+            label = tr("日", "Day"),
+            modifier = Modifier.weight(1f),
+        )
+    }
+    val m = queryMonth.toIntOrNull()
+    val d = queryDay.toIntOrNull()
+    if (m != null && d != null && m in 1..12 && d in 1..31) {
+        val sign = westernSign(m, d)
+        AgeIconBadge(
+            drawableRes = westernSignDrawable(sign.id),
+            label = sign.label(),
+            subtitle = sign.range,
+        )
+    } else {
+        Text(
+            text = tr("请输入有效月日", "Enter a valid month and day"),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+
+    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+    SectionLabel(tr("星座对照表", "Western zodiac table"))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            WESTERN_SIGNS.forEach { sign ->
+                AgeRefRow(
+                    drawableRes = westernSignDrawable(sign.id),
+                    name = sign.label(),
+                    detail = sign.range,
+                )
+            }
+        }
+    }
+
+    SectionLabel(tr("生肖对照表（示例年份）", "Chinese zodiac table (sample years)"))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            SHENGXIAO_SAMPLE_BASE.forEachIndexed { i, baseYear ->
+                val samples = (0 until 5).joinToString(", ") { k -> (baseYear + k * 12).toString() }
+                AgeRefRow(
+                    drawableRes = SHENGXIAO_DRAWABLES[i],
+                    name = if (isZh()) ANIMALS_ZH[i] else ANIMALS_EN[i],
+                    detail = samples,
+                )
+            }
+        }
     }
 }
 
@@ -1000,54 +1280,30 @@ private fun ZonePicker(
         val z = ZoneId.of(id)
         val zdt = nowInstant.atZone(z)
         val name = CITY_ZONES.firstOrNull { it.id == id }?.title() ?: id
-        "$name  ${zdt.format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss"))}  ${offsetLabel(zdt.offset)}"
+        val time = zdt.format(DateTimeFormatter.ofPattern("MM-dd HH:mm:ss")) + " " + offsetLabel(zdt.offset)
+        // 城市名是提示标签，时间才是结果 → 用标签冒号拆分着色
+        if (isZh()) "$name：$time" else "$name: $time"
     }
     SectionLabel(tr("世界时钟", "World clocks"))
-    ResultCard(main = tr("此刻", "Right now"), lines = clockLines)
+    ResultCard(
+        main = tr("此刻", "Right now"),
+        lines = clockLines,
+        mainIsResult = false,
+    )
 }
 
-// ───────────────────────────── 7. Countdown ─────────────────────────────
-
-@Composable fun CountdownTool() {
-    var title by remember { mutableStateOf("") }
-    var target by remember { mutableStateOf(LocalDate.now().plusMonths(1).toString()) }
-
-    CalcTextField(title, { title = it }, label = tr("标题（可选）", "Title (optional)"))
-    DateFieldWithPicker(target, { target = it }, label = tr("目标日期 (yyyy-MM-dd)", "Target date (yyyy-MM-dd)"))
-
-    val t = parseDate(target)
-    if (t == null) {
-        ResultCard(main = tr("请输入有效日期", "Enter a valid date"))
-    } else {
-        val today = LocalDate.now()
-        val days = ChronoUnit.DAYS.between(today, t)
-        val n = abs(days)
-        val name = title.trim()
-        val main = when {
-            days > 0 -> if (name.isEmpty()) tr("还有 $n 天", "$n days remaining")
-            else tr("距离「$name」还有 $n 天", "$n days until \"$name\"")
-            days < 0 -> if (name.isEmpty()) tr("已过去 $n 天", "$n days ago")
-            else tr("「$name」已过去 $n 天", "\"$name\" was $n days ago")
-            else -> if (name.isEmpty()) tr("就是今天！", "Today!") else tr("「$name」就是今天！", "\"$name\" is today!")
-        }
-        val p = if (days >= 0) Period.between(today, t) else Period.between(t, today)
-        ResultCard(
-            main = main,
-            lines = listOf(
-                (if (name.isEmpty()) "" else "$name · ") + "$t · ${weekdayName(t)}",
-                tr("约 ${fmt1(n / 7.0)} 周 · 约 ${fmt1(n / 30.44)} 个月", "≈ ${fmt1(n / 7.0)} weeks · ≈ ${fmt1(n / 30.44)} months"),
-                tr(
-                    "${p.years} 年 ${p.months} 个月 ${p.days} 天",
-                    "${p.years}y ${p.months}m ${p.days}d",
-                ),
-            ),
-        )
-    }
-}
+// ───────────────────────────── 7. Countdown → CountdownScreens.kt ─────────────────────────────
 
 // ───────────────────────────── 8. Stopwatch ─────────────────────────────
 
 private data class SwLap(val num: Int, val splitMs: Long, val totalMs: Long, val deltaMs: Long?)
+
+private enum class SwLapSort { ByNumber, FastToSlow, SlowToFast }
+
+private val SwSegH = Color(0xFF0F766E)
+private val SwSegM = Color(0xFF0369A1)
+private val SwSegS = Color(0xFFB45309)
+private val SwSegMs = Color(0xFF64748B)
 
 private fun formatSw(ms: Long): String {
     val m = max(0L, ms)
@@ -1058,7 +1314,94 @@ private fun formatSw(ms: Long): String {
     return String.format(Locale.ROOT, "%02d:%02d:%02d.%03d", h, mi, s, milli)
 }
 
-private fun formatSwDelta(ms: Long): String = (if (ms >= 0) "+" else "-") + formatSw(abs(ms))
+private fun formatSwDeltaPlain(ms: Long): String =
+    (if (ms >= 0) "+" else "−") + formatSw(abs(ms))
+
+private fun swSegmentedAnnotated(ms: Long): AnnotatedString {
+    val m = max(0L, ms)
+    val h = String.format(Locale.ROOT, "%02d", m / 3_600_000)
+    val mi = String.format(Locale.ROOT, "%02d", (m % 3_600_000) / 60_000)
+    val s = String.format(Locale.ROOT, "%02d", (m % 60_000) / 1000)
+    val milli = String.format(Locale.ROOT, "%03d", m % 1000)
+    return buildAnnotatedString {
+        withStyle(SpanStyle(color = SwSegH, fontWeight = FontWeight.Bold)) { append(h) }
+        withStyle(SpanStyle(color = SwSegMs, fontWeight = FontWeight.Bold)) { append(":") }
+        withStyle(SpanStyle(color = SwSegM, fontWeight = FontWeight.Bold)) { append(mi) }
+        withStyle(SpanStyle(color = SwSegMs, fontWeight = FontWeight.Bold)) { append(":") }
+        withStyle(SpanStyle(color = SwSegS, fontWeight = FontWeight.Bold)) { append(s) }
+        withStyle(SpanStyle(color = SwSegMs, fontWeight = FontWeight.Bold)) { append(".") }
+        withStyle(SpanStyle(color = SwSegMs, fontWeight = FontWeight.Bold)) { append(milli) }
+    }
+}
+
+@Composable
+private fun SwMainDisplay(ms: Long) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(128.dp)
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = swSegmentedAnnotated(ms),
+                fontSize = 36.sp,
+                fontFamily = FontFamily.Monospace,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SwLapRow(lap: SwLap, showDivider: Boolean) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = lap.num.toString(),
+                modifier = Modifier.widthIn(min = 28.dp),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.End,
+            )
+            Text(
+                text = swSegmentedAnnotated(lap.splitMs),
+                fontSize = 18.sp,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = lap.deltaMs?.let { formatSwDeltaPlain(it) } ?: "—",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF1A1A1A),
+                fontFamily = FontFamily.Monospace,
+                fontSize = 12.sp,
+            )
+        }
+        if (showDivider) {
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 12.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f),
+            )
+        }
+    }
+}
 
 @Composable fun StopwatchTool() {
     var running by remember { mutableStateOf(false) }
@@ -1067,6 +1410,8 @@ private fun formatSwDelta(ms: Long): String = (if (ms >= 0) "+" else "-") + form
     var displayMs by remember { mutableLongStateOf(0L) }
     var lastLapTotal by remember { mutableLongStateOf(0L) }
     val laps = remember { mutableStateListOf<SwLap>() }
+    var lapSort by remember { mutableStateOf(SwLapSort.ByNumber) }
+    var sortMenuOpen by remember { mutableStateOf(false) }
 
     fun nowElapsed(): Long =
         if (running) elapsedBase + (System.nanoTime() / 1_000_000 - startMark) else elapsedBase
@@ -1078,7 +1423,7 @@ private fun formatSwDelta(ms: Long): String = (if (ms >= 0) "+" else "-") + form
         }
     }
 
-    ResultCard(main = formatSw(displayMs))
+    SwMainDisplay(displayMs)
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         PrimaryButton(
             text = when {
@@ -1103,8 +1448,8 @@ private fun formatSwDelta(ms: Long): String = (if (ms >= 0) "+" else "-") + form
             val total = nowElapsed()
             if (total > 0) {
                 val split = total - lastLapTotal
-                val delta = laps.firstOrNull()?.let { split - it.splitMs }
-                laps.add(0, SwLap(laps.size + 1, split, total, delta))
+                val delta = laps.lastOrNull()?.let { split - it.splitMs }
+                laps.add(SwLap(laps.size + 1, split, total, delta))
                 lastLapTotal = total
                 displayMs = total
             }
@@ -1115,6 +1460,7 @@ private fun formatSwDelta(ms: Long): String = (if (ms >= 0) "+" else "-") + form
             displayMs = 0L
             lastLapTotal = 0L
             laps.clear()
+            lapSort = SwLapSort.ByNumber
         }, modifier = Modifier.weight(1f))
     }
 
@@ -1123,6 +1469,7 @@ private fun formatSwDelta(ms: Long): String = (if (ms >= 0) "+" else "-") + form
         val worst = laps.maxBy { it.splitMs }
         ResultCard(
             main = tr("最佳 / 最差分段", "Best / worst lap"),
+            mainIsResult = false,
             lines = listOf(
                 tr("最佳：第 ${best.num} 圈 ", "Best: lap ${best.num} ") + formatSw(best.splitMs),
                 tr("最差：第 ${worst.num} 圈 ", "Worst: lap ${worst.num} ") + formatSw(worst.splitMs),
@@ -1130,22 +1477,74 @@ private fun formatSwDelta(ms: Long): String = (if (ms >= 0) "+" else "-") + form
         )
     }
     if (laps.isNotEmpty()) {
-        val best = laps.minOf { it.splitMs }
-        val worst = laps.maxOf { it.splitMs }
-        val mark = laps.size >= 2 && best != worst
-        SectionLabel(tr("分段记录", "Laps"))
-        ResultCard(
-            main = tr("共 ${laps.size} 圈", "${laps.size} laps"),
-            lines = laps.map { lap ->
-                val tag = when {
-                    !mark -> ""
-                    lap.splitMs == best -> tr(" ★最佳", " ★best")
-                    lap.splitMs == worst -> tr(" ▼最差", " ▼worst")
-                    else -> ""
+        val displayed = remember(laps.toList(), lapSort) {
+            when (lapSort) {
+                SwLapSort.ByNumber -> laps.sortedBy { it.num }
+                SwLapSort.FastToSlow -> laps.sortedBy { it.splitMs }
+                SwLapSort.SlowToFast -> laps.sortedByDescending { it.splitMs }
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = tr("分段记录", "Laps"),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 8.dp, bottom = 4.dp),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Box {
+                IconButton(onClick = { sortMenuOpen = true }) {
+                    Icon(
+                        Icons.Outlined.SwapVert,
+                        contentDescription = tr("排序", "Sort"),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
-                val delta = lap.deltaMs?.let { "  Δ ${formatSwDelta(it)}" } ?: ""
-                "#${lap.num}  ${formatSw(lap.splitMs)}$delta  (${formatSw(lap.totalMs)})$tag"
-            },
-        )
+                DropdownMenu(
+                    expanded = sortMenuOpen,
+                    onDismissRequest = { sortMenuOpen = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(tr("正序（按圈号）", "Ascending (by lap)")) },
+                        onClick = {
+                            lapSort = SwLapSort.ByNumber
+                            sortMenuOpen = false
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(tr("由快到慢", "Fast → slow")) },
+                        onClick = {
+                            lapSort = SwLapSort.FastToSlow
+                            sortMenuOpen = false
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(tr("由慢到快", "Slow → fast")) },
+                        onClick = {
+                            lapSort = SwLapSort.SlowToFast
+                            sortMenuOpen = false
+                        },
+                    )
+                }
+            }
+        }
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+            Column(Modifier.fillMaxWidth()) {
+                displayed.forEachIndexed { index, lap ->
+                    SwLapRow(lap = lap, showDivider = index < displayed.lastIndex)
+                }
+            }
+        }
     }
 }

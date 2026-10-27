@@ -41,12 +41,13 @@ fun ToolHelpDialog(
     val details = ToolHelpDetails.sections(toolId)
     var showDetails by remember { mutableStateOf(false) }
 
+    // 点「详情」后只保留详情弹窗；关闭详情即结束，不再回到说明弹窗。
     if (showDetails && details != null) {
         ToolHelpDetailsDialog(
             toolName = toolName,
             zh = zh,
             sections = details,
-            onDismiss = { showDetails = false },
+            onDismiss = onDismiss,
         )
         return
     }
